@@ -10,7 +10,7 @@ import { useEffect, useId, useState } from 'react';
 function StringParam({
   param,
   value,
-  upadateNodeParamValue,
+  updateNodeParamValue,
   disabled,
 }: ParamProps) {
   const [internalValue, setInternalValue] = useState(value);
@@ -37,7 +37,7 @@ function StringParam({
         value={internalValue}
         placeholder='Enter value here'
         onChange={(e: any) => setInternalValue(e.target.value)}
-        onBlur={(e: any) => upadateNodeParamValue(e.target.value)}
+        onBlur={(e: any) => updateNodeParamValue(e.target.value)}
       />
       {param.helperText && (
         <p className='text-muted-foreground px-2'> {param.helperText}</p>
