@@ -11,6 +11,7 @@ export async function LaunchBrowserExecutor(
 
     const browser = await puppeteer.launch({
       headless: true,
+      args: ['--no-sandbox'],
     });
 
     enviroment.log.info('Browser started successfully');
