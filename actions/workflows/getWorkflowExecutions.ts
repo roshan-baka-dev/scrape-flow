@@ -1,11 +1,12 @@
-'use server';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+"use server";
+
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GetWorkflowExecutions(workflowId: string) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
-    throw new Error('unauthenticated');
+    throw new Error("unauthenticated");
   }
   return prisma.workflowExecution.findMany({
     where: {
@@ -13,7 +14,7 @@ export async function GetWorkflowExecutions(workflowId: string) {
       userId,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 }

@@ -1,5 +1,5 @@
-'use client';
-
+"use client";
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,38 +9,35 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
-
-import { DeleteWorkflow } from '@/actions/workflows/deleteWorkflow';
-import { toast } from 'sonner';
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { DeleteWorkflow } from "@/actions/workflows/deleteWorkflow";
 
 interface Props {
+  workflowId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   workflowName: string;
-  workflowId: string;
 }
-
-function DeleteWorkflowDialog({
-  open,
-  setOpen,
-  workflowName,
-  workflowId,
-}: Props) {
-  const [confirmText, setConfirmText] = useState('');
+function DeleteWorkflowDialog(props: Props) {
+  const { open, setOpen, workflowName, workflowId } = props;
+  const [confirmText, setConfirmText] = React.useState("");
 
   const deleteMutation = useMutation({
     mutationFn: DeleteWorkflow,
     onSuccess: () => {
-      toast.success('Workflow deleted successfully', { id: workflowId });
-      setConfirmText('');
+      toast.success("Workflow deleted successfully", {
+        id: workflowId,
+      });
+      setConfirmText("");
+      // setOpen(false);
     },
     onError: () => {
-      toast.error('Something went wrong!', { id: workflowId });
+      toast.error("Failed to delete workflow", {
+        id: workflowId,
+      });
     },
   });
 
@@ -50,10 +47,10 @@ function DeleteWorkflowDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            if you delete this workflow,you will not be able to recover it.
-            <div className='flex flex-col py-4 gap-2'>
+            If you delete this workflow, you will not be able to recover it.
+            <div className="flex flex-col py-4 gap-2">
               <p>
-                If you are sure,enter <b>{workflowName}</b> to confirm:
+                If you are sure,enter <b>{workflowName}</b> to confirm.
               </p>
               <Input
                 value={confirmText}
@@ -63,14 +60,14 @@ function DeleteWorkflowDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setConfirmText('')}>
+          <AlertDialogCancel onClick={() => setConfirmText("")}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={confirmText !== workflowName || deleteMutation.isPending}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={() => {
-              toast.loading('Deleting workflow...', { id: workflowId });
+              toast.loading("Deleting workflow...", { id: workflowId });
               deleteMutation.mutate(workflowId);
             }}
           >

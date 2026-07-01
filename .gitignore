@@ -26,10 +26,17 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*
+.env*.local
+.env
+.env.*
+
+.cache
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/scraper-flow

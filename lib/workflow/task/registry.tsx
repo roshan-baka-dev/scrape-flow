@@ -1,11 +1,26 @@
-import { LaunchBrowserTask } from '@/lib/workflow/task/LaunchBrowser';
-import { PageToHtmlTask } from './PageToHtml';
-import { ExtractTextFromElementTask } from './ExtractTextFromElement';
-import { TaskType } from '@/types/task';
-import { WorkflowTask } from '@/types/workflows';
-import { FillInputTask } from './FillInput';
-import { ClickElementTask } from './ClickElement';
-import { WaitForElementTask } from './WaitForElement';
+import { TaskType } from "@/types/TaskType";
+import { ExtractTextFromElementTask } from "./ExtractTextFromElement";
+import { LaunchBrowserTask } from "./LaunchBrowser";
+import { PageToHtmlTask } from "./PageToHtml";
+import { WorkflowTask } from "@/types/workflow";
+import { FillInputTask } from "./FillInput";
+import { ClickElementTask } from "./ClickElement";
+import { WaitForElementTask } from "./WaitForElement";
+import { DeliverViaWebhookTask } from "./DeliverViaWebhook";
+import { ExtractDataWithAITask } from "./ExtractDataWithAI";
+import { ReadPropertyFromJsonTask } from "./ReadPropertyFromJson";
+import { AddPropertyToJsonTask } from "./AddPropertyToJson";
+import { NavigateUrlTask } from "./NavigateUrl";
+import { ScrollToElementTask } from "./ScrollToElement";
+import { TakeScreenshotTask } from "./TakeScreenshot";
+import { WaitDelayTask } from "./WaitDelay";
+import { ExtractTableDataTask } from "./ExtractTableData";
+import { ConditionalLogicTask } from "./ConditionalLogic";
+import { DataTransformTask } from "./DataTransform";
+import { DownloadFileTask } from "./DownloadFile";
+import { SendEmailTask } from "./SendEmail";
+import { LoopTask } from "./Loop";
+import { FilterDataTask } from "./FilterData";
 
 type Registry = {
   [K in TaskType]: WorkflowTask & { type: K };
@@ -18,4 +33,19 @@ export const TaskRegistry: Registry = {
   FILL_INPUT: FillInputTask,
   CLICK_ELEMENT: ClickElementTask,
   WAIT_FOR_ELEMENT: WaitForElementTask,
+  DELIVER_VIA_WEBHOOK: DeliverViaWebhookTask,
+  EXTRACT_DATA_WITH_AI: ExtractDataWithAITask,
+  READ_PROPERTY_FROM_JSON: ReadPropertyFromJsonTask,
+  ADD_PROPERTY_TO_JSON: AddPropertyToJsonTask,
+  NAVIGATE_URL: NavigateUrlTask,
+  SCROLL_TO_ELEMENT: ScrollToElementTask,
+  TAKE_SCREENSHOT: TakeScreenshotTask,
+  WAIT_DELAY: WaitDelayTask,
+  EXTRACT_TABLE_DATA: ExtractTableDataTask,
+  CONDITIONAL_LOGIC: ConditionalLogicTask,
+  DATA_TRANSFORM: DataTransformTask,
+  DOWNLOAD_FILE: DownloadFileTask,
+  SEND_EMAIL: SendEmailTask,
+  LOOP: LoopTask,
+  FILTER_DATA: FilterDataTask,
 };

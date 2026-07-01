@@ -1,10 +1,12 @@
-'use server';
-import { prisma } from '@/lib/prisma';
-import { FlowToExecutionPlan } from '@/lib/workflow/executionPlan';
-import { calculateWorkflowCost } from '@/lib/workflow/helper';
-import { workflowStatus } from '@/types/workflows';
-import { auth } from '@clerk/nextjs/server';
-import { revalidatePath } from 'next/cache';
+"use server";
+
+import prisma from "@/lib/prisma";
+import { FlowToExecutionPlan } from "@/lib/workflow/executionPlan";
+import { CalculateWorkflowCost } from "@/lib/workflow/helpers";
+import { WorkflowStatus } from "@/types/workflow";
+import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
+
 export async function PublishWorkflow({
   id,
   flowDefinition,
@@ -12,10 +14,11 @@ export async function PublishWorkflow({
   id: string;
   flowDefinition: string;
 }) {
-  const { userId } = auth();
-  if (!userId) {
-    throw new Error('unathenticated');
-  }
+  const { userId } = await auth();
+  if (!userId)
+    throw new Error(
+      "Authentication required. Please sign in to publish a workflow."
+    );
 
   const workflow = await prisma.workflow.findUnique({
     where: {
@@ -23,26 +26,29 @@ export async function PublishWorkflow({
       userId,
     },
   });
-
   if (!workflow) {
-    throw new Error('workflow not found');
+    throw new Error(
+      "Workflow not found. The specified workflow may have been deleted or you don't have access to it."
+    );
   }
 
-  if (workflow.status !== workflowStatus.DRAFT) {
-    throw new Error('workflow is not a draft');
+  if (workflow.status !== WorkflowStatus.DRAFT) {
+    throw new Error(
+      "Invalid workflow status. Only draft workflows can be published."
+    );
   }
-
   const flow = JSON.parse(flowDefinition);
   const result = FlowToExecutionPlan(flow.nodes, flow.edges);
   if (result.error) {
-    throw new Error('flow definition not valid');
+    throw new Error(`Invalid flow configuration: ${result.error}`);
   }
+
   if (!result.executionPlan) {
-    throw new Error('no execution plan generated');
+    throw new Error(
+      "Failed to generate execution plan. Please check your workflow configuration."
+    );
   }
-
-  const creditsCost = calculateWorkflowCost(flow.nodes);
-
+  const creditsCost = CalculateWorkflowCost(flow.nodes);
   await prisma.workflow.update({
     where: {
       id,
@@ -52,8 +58,8 @@ export async function PublishWorkflow({
       definition: flowDefinition,
       executionPlan: JSON.stringify(result.executionPlan),
       creditsCost,
-      status: workflowStatus.PUBLISHED,
+      status: WorkflowStatus.PUBLISHED,
     },
   });
-  revalidatePath('/workflow/editor/${id}');
+  revalidatePath(`/workflows/${id}`);
 }

@@ -1,14 +1,14 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
-export async function GetWorkflowPhaseDetails(phaseId: string) {
-  const { userId } = auth();
+export const GetWorkflowPhaseDetails = async (phaseId: string) => {
+  const { userId } = await auth();
   if (!userId) {
-    throw new Error('unauthorised!!');
+    throw new Error("User not found");
   }
-
+  // Fetch the phase details from the database
   return prisma.executionPhase.findUnique({
     where: {
       id: phaseId,
@@ -18,8 +18,10 @@ export async function GetWorkflowPhaseDetails(phaseId: string) {
     },
     include: {
       logs: {
-        orderBy: { timestamp: 'asc' },
+        orderBy: {
+          timestamp: "asc",
+        },
       },
     },
   });
-}
+};

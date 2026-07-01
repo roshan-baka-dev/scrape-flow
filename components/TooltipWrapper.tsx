@@ -1,25 +1,22 @@
-'use client';
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import React from "react";
+import { Tooltip, TooltipContent, TooltipProvider } from "./ui/tooltip";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-
-import { ReactNode } from 'react';
-// import React from 'react'
-interface Props {
-  children: ReactNode;
-  content: ReactNode;
-  side?: 'top' | 'bottom' | 'left' | 'right';
+interface TooltipWrapperProps {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  side?: "top" | "bottom" | "left" | "right";
 }
-function TooltipWrapper(props: Props) {
+function TooltipWrapper(props: TooltipWrapperProps) {
+  if (!props.content) return props.children;
+
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>{props.children}</TooltipTrigger>
-        <TooltipContent side={props.side}>{props.content}</TooltipContent>
+        <TooltipContent side={props.side || "top"}>
+          {props.content}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

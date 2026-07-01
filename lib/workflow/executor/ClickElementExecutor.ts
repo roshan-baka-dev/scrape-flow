@@ -1,21 +1,19 @@
-import { ExecutionEnviroment } from '@/types/executor';
-import { FillInputTask } from '../task/FillInput';
-import { waitFor } from '@/lib/helper/waitFor';
-import { ClickElementTask } from '../task/ClickElement';
+import { ExecutionEnvironment } from "@/types/executor";
+import { ClickElementTask } from "../task/ClickElement";
 
 export async function ClickElementExecutor(
-  enviroment: ExecutionEnviroment<typeof ClickElementTask>
+  environment: ExecutionEnvironment<typeof ClickElementTask>
 ): Promise<boolean> {
   try {
-    const selector = enviroment.getInput('Selector');
+    const selector = environment.getInput("Selector");
     if (!selector) {
-      enviroment.log.error('input->selector not defined');
+      environment.log.error("Input Selector is required");
     }
 
-    await enviroment.getPage()!.click(selector);
+    await environment.getPage()!.click(selector);
     return true;
-  } catch (error: any) {
-    enviroment.log.error(error);
+  } catch (e: any) {
+    environment.log.error(e.message);
     return false;
   }
 }

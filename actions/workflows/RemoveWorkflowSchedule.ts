@@ -1,15 +1,15 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
-import { revalidatePath } from 'next/cache';
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
-export async function removeWorkflowSchedule(id: string) {
-  const { userId } = auth();
-
+export async function RemoveWorkflowSchedule(id: string) {
+  const { userId } = await auth();
   if (!userId) {
-    throw new Error('Unauthenticated');
+    throw new Error("User not found");
   }
+
   await prisma.workflow.update({
     where: {
       id,
@@ -20,5 +20,5 @@ export async function removeWorkflowSchedule(id: string) {
       nextRunAt: null,
     },
   });
-  revalidatePath('/workflows');
+  revalidatePath(`/workflows`);
 }

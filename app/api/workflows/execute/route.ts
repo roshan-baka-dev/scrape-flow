@@ -1,58 +1,80 @@
-import { prisma } from '@/lib/prisma';
-import { ExecuteWorkflow } from '@/lib/workflow/executeWorkflow';
-import { TaskRegistry } from '@/lib/workflow/task/registry';
+import prisma from "@/lib/prisma";
+import { ExecutionWorkflow } from "@/lib/workflow/executionWorkflow";
+import { TaskRegistry } from "@/lib/workflow/task/registry";
 import {
   ExecutionPhaseStatus,
+  WorkflowExcetionTrigger,
   WorkflowExecutionPlan,
   WorkflowExecutionStatus,
-  WorkflowExecutionTrigger,
-} from '@/types/workflows';
-import CronExpressionParser from 'cron-parser';
-import { timingSafeEqual } from 'crypto';
-function isValidSecret(secret: string) {
+} from "@/types/workflow";
+import { timingSafeEqual } from "crypto";
+import { parseWorkflowSchedule } from "@/lib/cron/scheduleParser";
+
+function isValidSecret(secret: string): boolean {
   const API_SECRET = process.env.API_SECRET;
-  if (!API_SECRET) return false;
+  if (!API_SECRET) {
+    return false;
+  }
   try {
     return timingSafeEqual(Buffer.from(secret), Buffer.from(API_SECRET));
   } catch (error) {
     return false;
   }
 }
-export async function GET(request: Request) {
-  // const authHeader = request.headers.get('authorization');
-  // console.log('header-->', request.headers);
-  // if (!authHeader || !authHeader.startsWith('Bearer ')) {
-  //   return Response.json({ error: 'Unauthorized hai bsdk1' }, { status: 401 });
-  // }
-  // const secret = authHeader.split(' ')[1];
-  // if (!isValidSecret(secret)) {
-  //   return Response.json({ error: 'Unauthorized hai lodu' }, { status: 401 });
-  // }
 
-  const { searchParams } = new URL(request.url);
-  const workflowId = searchParams.get('workflowId') as string;
+export async function GET(req: Request, res: Response) {
+  const authHeader = req.headers.get("authorization");
 
-  if (!workflowId) {
-    return Response.json({ error: 'Bad Request' }, { status: 400 });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const select = authHeader.split(" ")[1];
+  if (!isValidSecret(select)) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { searchParams } = new URL(req.url);
+  const workflowId = searchParams.get("workflowId") as string;
+  if (!workflowId) {
+    return Response.json({ error: "WorkflowId is required" }, { status: 400 });
+  }
   const workflow = await prisma.workflow.findUnique({
-    where: { id: workflowId },
+    where: {
+      id: workflowId,
+    },
   });
+
   if (!workflow) {
-    return Response.json({ error: 'bad request' }, { status: 400 });
+    return Response.json({ error: "Workflow not found" }, { status: 404 });
   }
   const executionPlan = JSON.parse(
     workflow.executionPlan!
   ) as WorkflowExecutionPlan;
-
   if (!executionPlan) {
-    return Response.json({ error: 'bad request' }, { status: 400 });
+    return Response.json(
+      { error: "Workflow execution plan not found" },
+      { status: 404 }
+    );
   }
 
   try {
-    const cron = CronExpressionParser.parse(workflow.cron!, { tz: 'utc' });
-    const nextRun = cron.next().toDate();
+    // Determine if this is a cron-triggered execution
+    const isCronTrigger = workflow.cron !== null;
+    let nextRun = null; // If it's a cron-triggered workflow, calculate the next execution time
+    if (isCronTrigger && workflow.cron) {
+      try {
+        const parsedSchedule = parseWorkflowSchedule(workflow.cron);
+        if (parsedSchedule.isValid && parsedSchedule.nextRunDate) {
+          nextRun = parsedSchedule.nextRunDate;
+        } else {
+          console.error("Invalid schedule format:", workflow.cron);
+        }
+      } catch (error) {
+        console.error("Error parsing schedule expression:", error);
+      }
+    }
+
+    // Create workflow execution record
     const execution = await prisma.workflowExecution.create({
       data: {
         workflowId,
@@ -60,7 +82,9 @@ export async function GET(request: Request) {
         definition: workflow.definition,
         status: WorkflowExecutionStatus.PENDING,
         startedAt: new Date(),
-        trigger: WorkflowExecutionTrigger.CRON,
+        trigger: isCronTrigger
+          ? WorkflowExcetionTrigger.CRON
+          : WorkflowExcetionTrigger.MANUAL,
         phases: {
           create: executionPlan.flatMap((phase) => {
             return phase.nodes.flatMap((node) => {
@@ -76,10 +100,10 @@ export async function GET(request: Request) {
         },
       },
     });
-
-    await ExecuteWorkflow(execution.id, nextRun);
+    await ExecutionWorkflow(execution.id, nextRun || undefined);
     return new Response(null, { status: 200 });
-  } catch (error) {
-    return Response.json({ error: 'Internal server error' }, { status: 400 });
+  } catch (e) {
+    console.error("Error executing workflow:", e);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

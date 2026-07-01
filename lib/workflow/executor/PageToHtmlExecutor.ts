@@ -1,16 +1,17 @@
-import { ExecutionEnviroment } from '@/types/executor';
-import { LaunchBrowserTask } from '../task/LaunchBrowser';
-import { PageToHtmlTask } from '../task/PageToHtml';
+import { waitFor } from "@/lib/helper/waitFor";
+import { ExecutionEnvironment } from "@/types/executor";
+import { LaunchBrowserTask } from "../task/LaunchBrowser";
+import { PageToHtmlTask } from "../task/PageToHtml";
 
 export async function PageToHtmlExecutor(
-  enviroment: ExecutionEnviroment<typeof PageToHtmlTask>
+  environment: ExecutionEnvironment<typeof PageToHtmlTask>
 ): Promise<boolean> {
   try {
-    const html = await enviroment.getPage()!.content();
-    enviroment.setOutput('Html', html);
+    const html = await environment.getPage()!.content();
+    environment.setOutput("Html", html);
     return true;
-  } catch (error: any) {
-    enviroment.log.error(error);
+  } catch (e: any) {
+    environment.log.error(e.message);
     return false;
   }
 }

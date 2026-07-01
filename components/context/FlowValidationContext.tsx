@@ -1,11 +1,5 @@
-import { AppNodeMissingInputs } from '@/types/appNode';
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useState,
-} from 'react';
+import { AppNodeMissingInputs } from "@/types/appNode";
+import { createContext, Dispatch, SetStateAction, useState } from "react";
 
 type FlowValidationContextType = {
   invalidInputs: AppNodeMissingInputs[];
@@ -19,21 +13,19 @@ export const FlowValidationContext =
 export function FlowValidationContextProvider({
   children,
 }: {
-  children: ReactNode;
+  children: React.ReactNode;
 }) {
   const [invalidInputs, setInvalidInputs] = useState<AppNodeMissingInputs[]>(
     []
   );
+
   const clearErrors = () => {
     setInvalidInputs([]);
   };
+
   return (
     <FlowValidationContext.Provider
-      value={{
-        invalidInputs,
-        setInvalidInputs,
-        clearErrors,
-      }}
+      value={{ invalidInputs, setInvalidInputs, clearErrors }}
     >
       {children}
     </FlowValidationContext.Provider>

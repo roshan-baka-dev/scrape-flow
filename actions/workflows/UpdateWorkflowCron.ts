@@ -1,9 +1,9 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
-import { CronExpressionParser } from 'cron-parser';
-import { revalidatePath } from 'next/cache';
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { parseWorkflowSchedule } from "@/lib/cron/scheduleParser";
+import { revalidatePath } from "next/cache";
 
 export async function UpdateWorkflowCron({
   id,
@@ -12,24 +12,36 @@ export async function UpdateWorkflowCron({
   id: string;
   cron: string;
 }) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
-    throw new Error('unauthenticated');
+    throw new Error("User not found");
   }
+
+  // Parse and validate the schedule expression
+  const parsedSchedule = parseWorkflowSchedule(cron);
+
+  if (!parsedSchedule.isValid || !parsedSchedule.nextRunDate) {
+    throw new Error(
+      "Invalid schedule format. Use either a valid cron expression (e.g. '*/5 * * * *') " +
+        "or a simple interval (e.g. '5m', '1h', '1d')"
+    );
+  }
+
   try {
-    const interval = CronExpressionParser.parse(cron, {
-      tz: 'UTC',
-    });
+    // Update the workflow with the new schedule
     await prisma.workflow.update({
-      where: { id, userId },
+      where: {
+        id,
+        userId,
+      },
       data: {
         cron,
-        nextRunAt: interval.next().toDate(),
+        nextRunAt: parsedSchedule.nextRunDate,
       },
     });
   } catch (error: any) {
-    console.error('invalid cron:', error.message);
-    throw new Error('invalid cron expression');
+    throw new Error("Failed to update workflow schedule");
   }
-  revalidatePath('/workflows');
+
+  revalidatePath(`/workflows`);
 }

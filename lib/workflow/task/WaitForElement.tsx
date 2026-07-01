@@ -1,48 +1,38 @@
-import { TaskParamType, TaskType } from '@/types/task';
-import { WorkflowTask } from '@/types/workflows';
-import {
-  CodeIcon,
-  EyeIcon,
-  GlobeIcon,
-  LucideProps,
-  MousePointerClickIcon,
-  PointerIcon,
-  TextIcon,
-} from 'lucide-react';
+import { TaskParamType, TaskType } from "@/types/TaskType";
+import { WorkflowTask } from "@/types/workflow";
+import { EyeIcon } from "lucide-react";
 
 export const WaitForElementTask = {
   type: TaskType.WAIT_FOR_ELEMENT,
-  label: 'Wait for element',
-  icon: (props: LucideProps) => (
-    <EyeIcon className='stroke-amber-400' {...props} />
-  ),
+  label: "Wait for Element",
+  icon: (props) => <EyeIcon className="stroke-amber-400" {...props} />,
   isEntryPoint: false,
   credits: 1,
   inputs: [
     {
-      name: 'web page',
+      name: "Web page",
       type: TaskParamType.BROWSER_INSTANCE,
-      require: true,
+      required: true,
     },
     {
-      name: 'Selector',
+      name: "Selector",
       type: TaskParamType.STRING,
-      require: true,
+      required: true,
     },
     {
-      name: 'Visibility',
+      name: "Visibility",
       type: TaskParamType.SELECT,
-      require: true,
+      required: true,
       hideHandle: true,
       options: [
-        { label: 'Visible', value: 'visible' },
-        { label: 'Hidden', value: 'hidden' },
+        { value: "visible", label: "Visible" },
+        { value: "hidden", label: "Hidden" },
       ],
     },
   ] as const,
   outputs: [
     {
-      name: 'Web page',
+      name: "Web page",
       type: TaskParamType.BROWSER_INSTANCE,
     },
   ] as const,
