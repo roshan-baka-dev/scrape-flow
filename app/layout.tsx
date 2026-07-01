@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ScrapeFlow",
+  title: "NexusScrape",
   description:
     "Next.js, TypeScript, React-Flow, Prisma, and React-Query to build a scalable SaaS platform for web scraping and automation.",
 };

@@ -21,9 +21,9 @@ const Logo = ({ fontSize = "text-2xl", iconSize = 20 }: LogoProps) => {
       </div>
       <div>
         <span className="bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
-          Scraper
+          Nexus
         </span>
-        <span className="text-stone-700 dark:text-stone-300">Flow</span>
+        <span className="text-stone-700 dark:text-stone-300">Scrape</span>
       </div>
     </Link>
   );
