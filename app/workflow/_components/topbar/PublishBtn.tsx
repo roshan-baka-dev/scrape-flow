@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { useReactFlow } from "@xyflow/react";
 import { UploadIcon } from "lucide-react";
-import { PublishWorkflow } from "@/actions/workflows/PublishWorkflow";
+import { PublishWorkflow } from "@/actions/workflows/publishWorkflow";
 import { toast } from "sonner";
 
 export default function PublishBtn({ workflowId }: { workflowId: string }) {
