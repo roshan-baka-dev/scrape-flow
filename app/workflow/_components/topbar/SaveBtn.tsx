@@ -1,4 +1,4 @@
-import { UpdateWorkflow } from "@/actions/workflows/updateWorkflow";
+import { UpdateWorkflow } from "@/actions/workflows/UpdateWorkflow";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { useReactFlow } from "@xyflow/react";
