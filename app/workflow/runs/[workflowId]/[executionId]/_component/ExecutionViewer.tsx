@@ -1,6 +1,6 @@
 'use client';
 
-import { GetWorkflowExecutionWithPhases } from '@/actions/workflows/GetWorkflowExecutionWithPhases';
+import { GetWorkflowExecutionWithPhases } from '@/actions/workflows/getWorkflowExecutionWithPhase';
 import { GetWorkflowPhaseDetails } from '@/actions/workflows/getWorkflowPhaseDetails';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,14 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import DatesToDurationString from '@/lib/helper/dates';
+import { DatesToDurationString } from '@/lib/helper/dates';
 import { GetPhasesTotalCost } from '@/lib/helper/phases';
 import { cn } from '@/lib/utils';
 import { LogLevel } from '@/types/log';
 import {
   ExecutionPhaseStatus,
   WorkflowExecutionStatus,
-} from '@/types/workflows';
+} from '@/types/workflow';
 import { ExecutionLog } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';

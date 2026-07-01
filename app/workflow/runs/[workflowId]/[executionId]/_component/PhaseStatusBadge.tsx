@@ -1,4 +1,4 @@
-import { ExecutionPhaseStatus } from '@/types/workflows';
+import { ExecutionPhaseStatus } from '@/types/workflow';
 import {
   CircleCheckIcon,
   CircleDashedIcon,

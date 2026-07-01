@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AppProviders } from "@/components/Providers/AppProviders";
+import { AppProviders } from "@/components/providers/AppProviders";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });

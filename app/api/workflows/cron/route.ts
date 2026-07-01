@@ -4,6 +4,8 @@ import { checkWorkflowCredits } from "@/lib/workflow/creditCheck";
 import { WorkflowExecutionStatus, WorkflowStatus } from "@/types/workflow";
 import { parseWorkflowSchedule } from "@/lib/cron/scheduleParser";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request, res: Response) {
   const now = new Date();
   const workflows = await prisma.workflow.findMany({
