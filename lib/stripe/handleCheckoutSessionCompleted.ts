@@ -22,27 +22,40 @@ export async function HandleCheckoutSessionCompleted(
   if (!purchasePack) {
     throw new Error("Invalid Package");
   }
-  await prisma.userBalance.upsert({
-    where: { userId },
-    create: {
-      userId,
-      credits: purchasePack.credits,
-    },
-    update: {
-      credits: {
-        increment: purchasePack.credits,
+  await prisma.$transaction(async (tx) => {
+    // Implement idempotency: check if the purchase already exists
+    const existingPurchase = await tx.userPurchase.findUnique({
+      where: { stripeId: event.id },
+    });
+
+    if (existingPurchase) {
+      console.log(`Purchase ${event.id} already processed, skipping.`);
+      return;
+    }
+
+    await tx.userBalance.upsert({
+      where: { userId },
+      create: {
+        userId,
+        credits: purchasePack.credits,
       },
-    },
+      update: {
+        credits: {
+          increment: purchasePack.credits,
+        },
+      },
+    });
+
+    await tx.userPurchase.create({
+      data: {
+        userId,
+        stripeId: event.id,
+        description: `${purchasePack.name} - ${purchasePack.credits} credits`,
+        amount: event.amount_total!,
+        currency: event.currency!,
+      },
+    });
   });
 
-  await prisma.userPurchase.create({
-    data: {
-      userId,
-      stripeId: event.id,
-      description: `${purchasePack.name} - ${purchasePack.credits} credits`,
-      amount: event.amount_total!,
-      currency: event.currency!,
-    },
-  });
   console.log("Checkout session completed event handled successfully");
 }
